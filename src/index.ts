@@ -1,1 +1,3 @@
-export { useCounter } from './hooks/useCounter/';
+import useApiRequest from './hooks/useApiRequest';
+
+export default useApiRequest
