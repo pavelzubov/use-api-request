@@ -22,6 +22,7 @@ export interface TUseApiRequestProps<T = any> {
   token?: string;
   name?: string;
   cache?: boolean;
+  interval?: number;
 }
 
 export interface TUseApiRequestOutput<T> {
@@ -50,20 +51,21 @@ export interface IAlertService {
 const defaultGetErrorMessageCallback = (errorMessage: string) => errorMessage;
 
 const useApiRequest = <T extends any>({
-                                        token,
-                                        name,
-                                        cache,
-                                        alertService,
-                                        getErrorMessageCallback = defaultGetErrorMessageCallback,
-                                        fetchOnMountData,
-                                        fetchOnMount,
-                                        middleware = [],
-                                        successMessage,
-                                        request,
-                                        defaultData,
-                                        catchCallback
-                                      }: TUseApiRequestProps<T>): TUseApiRequestOutput<T> => {
-  const [status, setStatus] = useState<API_REQUEST_STATUS>("WAIT");
+  interval,
+  token,
+  name,
+  cache,
+  alertService,
+  getErrorMessageCallback = defaultGetErrorMessageCallback,
+  fetchOnMountData,
+  fetchOnMount,
+  middleware = [],
+  successMessage,
+  request,
+  defaultData,
+  catchCallback,
+}: TUseApiRequestProps<T>): TUseApiRequestOutput<T> => {
+  const [status, setStatus] = useState<API_REQUEST_STATUS>('WAIT');
   const [data, setData] = useState<T | TNullValue>(defaultData || nullValue);
   const [errorMessage, setErrorMessageState] = useState<string>("");
   const setErrorMessage = (error: any) =>
@@ -112,7 +114,7 @@ const useApiRequest = <T extends any>({
   };
 
   const sendRequest = (props?: any) => {
-    if (cache && name) {
+    if (cache && name && !data) {
       const cacheValue = getCache(name, token);
       if (cacheValue) sendFetchRequest(Promise.resolve(cacheValue));
     }
@@ -123,6 +125,20 @@ const useApiRequest = <T extends any>({
     if (fetchOnMount) sendRequest(fetchOnMountData);
   }, []);
 
+  useEffect(() => {
+    let intervalData: number;
+    const intervalInMs = (interval || 1000) * 1000;
+    if (interval)
+      setTimeout(() => {
+        intervalData = setInterval(() => {
+          sendRequest(fetchOnMountData);
+        }, intervalInMs) as unknown as number;
+      }, intervalInMs);
+    return () => {
+      intervalData && clearInterval(intervalData);
+    };
+  }, [interval]);
+
   return {
     setData,
     status,
@@ -130,7 +146,7 @@ const useApiRequest = <T extends any>({
     cleanErrorMessage,
     isPending,
     data,
-    sendRequest
+    sendRequest,
   };
 };
 
