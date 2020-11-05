@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MiddlewareType, setPromiseMiddleware } from "../../helpers/promise-middleware";
+import { getCache, setCache } from '../../helpers/cache';
 
 export type API_REQUEST_STATUS = "WAIT" | "PENDING" | "SUCCESS" | "FAIL";
 
@@ -18,6 +19,9 @@ export interface TUseApiRequestProps<T = any> {
   successMessage?: string;
   middleware?: MiddlewareType[];
   fetchOnMount?: boolean;
+  token?: string;
+  name?: string;
+  cache?: boolean;
 }
 
 export interface TUseApiRequestOutput<T> {
@@ -46,16 +50,19 @@ export interface IAlertService {
 const defaultGetErrorMessageCallback = (errorMessage: string) => errorMessage;
 
 const useApiRequest = <T extends any>({
-  alertService,
-  getErrorMessageCallback = defaultGetErrorMessageCallback,
-  fetchOnMountData,
-  fetchOnMount,
-  middleware = [],
-  successMessage,
-  request,
-  defaultData,
-  catchCallback
-}: TUseApiRequestProps<T>): TUseApiRequestOutput<T> => {
+                                        token,
+                                        name,
+                                        cache,
+                                        alertService,
+                                        getErrorMessageCallback = defaultGetErrorMessageCallback,
+                                        fetchOnMountData,
+                                        fetchOnMount,
+                                        middleware = [],
+                                        successMessage,
+                                        request,
+                                        defaultData,
+                                        catchCallback
+                                      }: TUseApiRequestProps<T>): TUseApiRequestOutput<T> => {
   const [status, setStatus] = useState<API_REQUEST_STATUS>("WAIT");
   const [data, setData] = useState<T | TNullValue>(defaultData || nullValue);
   const [errorMessage, setErrorMessageState] = useState<string>("");
@@ -72,18 +79,24 @@ const useApiRequest = <T extends any>({
     return res;
   };
 
+  const setCacheMiddleware = (res: any) => {
+    if (cache && name) setCache(name, res, token);
+    return res;
+  };
+
   const middlewareList: MiddlewareType[] = [
     ...middleware,
+    setCacheMiddleware,
     setData,
     cleanErrorMessage,
     sendSuccessMessage
   ];
 
-  const sendRequest = (props?: any) => {
+  const sendFetchRequest = (request: TRequest<T>) => {
     setIsPending(true);
     setStatus("PENDING");
     return ((setPromiseMiddleware(
-      request(props),
+      request,
       middlewareList
     ) as unknown) as Promise<any>)
       .catch((error: any) => {
@@ -96,6 +109,14 @@ const useApiRequest = <T extends any>({
       .finally(() => {
         setIsPending(false);
       }) as TRequest<T>;
+  };
+
+  const sendRequest = (props?: any) => {
+    if (cache && name) {
+      const cacheValue = getCache(name, token);
+      if (cacheValue) sendFetchRequest(Promise.resolve(cacheValue));
+    }
+    return sendFetchRequest(request(props));
   };
 
   useEffect(() => {
