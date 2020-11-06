@@ -16,6 +16,7 @@ export interface TUseApiRequestProps<T = any> {
     token?: string;
     name?: string;
     cache?: boolean;
+    interval?: number;
 }
 export interface TUseApiRequestOutput<T> {
     setData: (data: T | TNullValue) => void;
@@ -37,5 +38,5 @@ export interface IAlertService {
     warningAlert: (alert: IAlert) => void;
     errorAlert: (alert: IAlert) => void;
 }
-declare const useApiRequest: <T extends unknown>({ token, name, cache, alertService, getErrorMessageCallback, fetchOnMountData, fetchOnMount, middleware, successMessage, request, defaultData, catchCallback }: TUseApiRequestProps<T>) => TUseApiRequestOutput<T>;
+declare const useApiRequest: <T extends unknown>({ interval, token, name, cache, alertService, getErrorMessageCallback, fetchOnMountData, fetchOnMount, middleware, successMessage, request, defaultData, catchCallback, }: TUseApiRequestProps<T>) => TUseApiRequestOutput<T>;
 export default useApiRequest;
