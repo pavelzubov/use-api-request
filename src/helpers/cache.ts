@@ -50,8 +50,8 @@ const isValidDate = (cacheValueDate: Date) => {
 class CacheService {
   private cache: StorageService<string, CacheValue>;
 
-  constructor() {
-    this.cache = LocalStorageService;
+  constructor(service: StorageService<string, CacheValue>) {
+    this.cache = service;
   }
 
   set(key: string, value: any) {
@@ -73,4 +73,6 @@ class CacheService {
   }
 }
 
-export const cacheService = new CacheService();
+const currentStorageService: StorageService<string, CacheValue> =
+  typeof window === 'undefined' ? new Map() : LocalStorageService;
+export const cacheService = new CacheService(currentStorageService);
