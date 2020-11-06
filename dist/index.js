@@ -123,8 +123,8 @@ var isValidDate = function (cacheValueDate) {
     return +currentDate - +new Date(cacheValueDate) <= CACHE_DURATION;
 };
 var CacheService = /** @class */ (function () {
-    function CacheService() {
-        this.cache = LocalStorageService;
+    function CacheService(service) {
+        this.cache = service;
     }
     CacheService.prototype.set = function (key, value) {
         var cacheData = {
@@ -145,7 +145,8 @@ var CacheService = /** @class */ (function () {
     };
     return CacheService;
 }());
-var cacheService = new CacheService();
+var currentStorageService = typeof window === 'undefined' ? new Map() : LocalStorageService;
+var cacheService = new CacheService(currentStorageService);
 
 var nullValue = undefined;
 var defaultGetErrorMessageCallback = function (errorMessage) { return errorMessage; };
