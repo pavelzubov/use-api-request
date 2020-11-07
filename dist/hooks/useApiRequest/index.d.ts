@@ -4,6 +4,7 @@ declare type TNullValue = undefined;
 export declare const nullValue: undefined;
 declare type TRequest<T> = Promise<T>;
 export interface TUseApiRequestProps<T = any> {
+    cacheMaxAge?: number;
     alertService?: IAlertService;
     getErrorMessageCallback?: (error: any) => string;
     fetchOnMountData?: any;
@@ -38,5 +39,5 @@ export interface IAlertService {
     warningAlert: (alert: IAlert) => void;
     errorAlert: (alert: IAlert) => void;
 }
-declare const useApiRequest: <T extends unknown>({ interval, token, name, cache, alertService, getErrorMessageCallback, fetchOnMountData, fetchOnMount, middleware, successMessage, request, defaultData, catchCallback, }: TUseApiRequestProps<T>) => TUseApiRequestOutput<T>;
+declare const useApiRequest: <T extends unknown>({ cacheMaxAge, interval, token, name, cache, alertService, getErrorMessageCallback, fetchOnMountData, fetchOnMount, middleware, successMessage, request, defaultData, catchCallback, }: TUseApiRequestProps<T>) => TUseApiRequestOutput<T>;
 export default useApiRequest;

@@ -86,13 +86,13 @@ var setPromiseMiddleware = function (promise, middleware) { return __awaiter(voi
     });
 }); };
 
-var CACHE_DURATION = 100 * 60 * 60 * 5;
+var CACHE_MAX_AGE = 100 * 60 * 60 * 5;
 var getCacheKey = function (name, token) {
     return name + token;
 };
-var getCache = function (name, token) {
+var getCache = function (name, token, cacheMaxAge) {
     var key = getCacheKey(name, token);
-    return cacheService.get(key);
+    return cacheService.get(key, cacheMaxAge);
 };
 var setCache = function (name, value, token) {
     var key = getCacheKey(name, token);
@@ -118,9 +118,10 @@ var LocalStorageService = {
         localStorage.removeItem(key);
     }
 };
-var isValidDate = function (cacheValueDate) {
+var isValidDate = function (cacheValueDate, cacheMaxAge) {
+    if (cacheMaxAge === void 0) { cacheMaxAge = CACHE_MAX_AGE; }
     var currentDate = new Date();
-    return +currentDate - +new Date(cacheValueDate) <= CACHE_DURATION;
+    return +currentDate - +new Date(cacheValueDate) <= cacheMaxAge;
 };
 var CacheService = /** @class */ (function () {
     function CacheService(service) {
@@ -133,11 +134,11 @@ var CacheService = /** @class */ (function () {
         };
         this.cache.set(key, cacheData);
     };
-    CacheService.prototype.get = function (key) {
+    CacheService.prototype.get = function (key, cacheMaxAge) {
         var cacheValue = this.cache.get(key);
         if (!cacheValue)
             return undefined;
-        if (!isValidDate(cacheValue.date)) {
+        if (!isValidDate(cacheValue.date, cacheMaxAge)) {
             this.cache.delete(key);
             return undefined;
         }
@@ -151,7 +152,7 @@ var cacheService = new CacheService(currentStorageService);
 var nullValue = undefined;
 var defaultGetErrorMessageCallback = function (errorMessage) { return errorMessage; };
 var useApiRequest = function (_a) {
-    var interval = _a.interval, token = _a.token, name = _a.name, cache = _a.cache, alertService = _a.alertService, _b = _a.getErrorMessageCallback, getErrorMessageCallback = _b === void 0 ? defaultGetErrorMessageCallback : _b, fetchOnMountData = _a.fetchOnMountData, fetchOnMount = _a.fetchOnMount, _c = _a.middleware, middleware = _c === void 0 ? [] : _c, successMessage = _a.successMessage, request = _a.request, defaultData = _a.defaultData, catchCallback = _a.catchCallback;
+    var cacheMaxAge = _a.cacheMaxAge, interval = _a.interval, token = _a.token, name = _a.name, cache = _a.cache, alertService = _a.alertService, _b = _a.getErrorMessageCallback, getErrorMessageCallback = _b === void 0 ? defaultGetErrorMessageCallback : _b, fetchOnMountData = _a.fetchOnMountData, fetchOnMount = _a.fetchOnMount, _c = _a.middleware, middleware = _c === void 0 ? [] : _c, successMessage = _a.successMessage, request = _a.request, defaultData = _a.defaultData, catchCallback = _a.catchCallback;
     var _d = react.useState('WAIT'), status = _d[0], setStatus = _d[1];
     var _e = react.useState(defaultData || nullValue), data = _e[0], setData = _e[1];
     var _f = react.useState(""), errorMessage = _f[0], setErrorMessageState = _f[1];
@@ -195,7 +196,7 @@ var useApiRequest = function (_a) {
     };
     var sendRequest = function (props) {
         if (cache && name && !data) {
-            var cacheValue = getCache(name, token);
+            var cacheValue = getCache(name, token, cacheMaxAge);
             if (cacheValue)
                 sendFetchRequest(Promise.resolve(cacheValue));
         }
