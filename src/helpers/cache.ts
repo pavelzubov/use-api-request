@@ -9,15 +9,15 @@ interface StorageService<K = string, T = any> {
   delete: (key: K) => void;
 }
 
-const CACHE_DURATION = 100 * 60 * 60 * 5;
+const CACHE_MAX_AGE = 100 * 60 * 60 * 5;
 
 export const getCacheKey = (name: string, token?: string) => {
   return name + token;
 };
 
-export const getCache = (name: string, token?: string): any => {
+export const getCache = (name: string, token?: string, cacheMaxAge?: number): any => {
   const key = getCacheKey(name, token);
-  return cacheService.get(key);
+  return cacheService.get(key, cacheMaxAge);
 };
 
 export const setCache = (name: string, value: any, token?: string) => {
@@ -42,9 +42,9 @@ const LocalStorageService: StorageService<string, CacheValue> = {
   }
 };
 
-const isValidDate = (cacheValueDate: Date) => {
+const isValidDate = (cacheValueDate: Date, cacheMaxAge: number = CACHE_MAX_AGE) => {
   const currentDate = new Date();
-  return +currentDate - +new Date(cacheValueDate) <= CACHE_DURATION;
+  return +currentDate - +new Date(cacheValueDate) <= cacheMaxAge;
 };
 
 class CacheService {
@@ -62,10 +62,10 @@ class CacheService {
     this.cache.set(key, cacheData);
   }
 
-  get(key: string) {
+  get(key: string, cacheMaxAge?: number) {
     const cacheValue = this.cache.get(key);
     if (!cacheValue) return undefined;
-    if (!isValidDate(cacheValue.date)) {
+    if (!isValidDate(cacheValue.date, cacheMaxAge)) {
       this.cache.delete(key);
       return undefined;
     }

@@ -10,6 +10,7 @@ export const nullValue = undefined;
 type TRequest<T> = Promise<T>;
 
 export interface TUseApiRequestProps<T = any> {
+  cacheMaxAge?: number;
   alertService?: IAlertService;
   getErrorMessageCallback?: (error: any) => string;
   fetchOnMountData?: any;
@@ -51,6 +52,7 @@ export interface IAlertService {
 const defaultGetErrorMessageCallback = (errorMessage: string) => errorMessage;
 
 const useApiRequest = <T extends any>({
+  cacheMaxAge,
   interval,
   token,
   name,
@@ -115,7 +117,7 @@ const useApiRequest = <T extends any>({
 
   const sendRequest = (props?: any) => {
     if (cache && name && !data) {
-      const cacheValue = getCache(name, token);
+      const cacheValue = getCache(name, token, cacheMaxAge);
       if (cacheValue) sendFetchRequest(Promise.resolve(cacheValue));
     }
     return sendFetchRequest(request(props));
