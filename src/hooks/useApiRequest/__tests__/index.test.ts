@@ -26,7 +26,7 @@ describe("test useRequest hook", () => {
       const { result } = renderHook(() => useApiRequest({ request }), {
       });
       await act(() => {
-        result.current.sendRequest();
+       return result.current.sendRequest();
       });
       expect(testValue).toBe(newTestValue);
     });
@@ -36,7 +36,7 @@ describe("test useRequest hook", () => {
       const { result } = renderHook(() => useApiRequest({ request }), {
       });
       await act(() => {
-        result.current.sendRequest().then(() => {
+        return result.current.sendRequest().then(() => {
           expect(result.current.data).toBe(testValue);
         });
       });
@@ -46,21 +46,21 @@ describe("test useRequest hook", () => {
       const request = () => Promise.resolve(testValue) as Promise<string>;
       const { result } = renderHook(() => useApiRequest({ request }), {
       });
-      act(() => {
-        result.current.sendRequest().then(() => {
+      await act(() => {
+        return result.current.sendRequest().then(() => {
           expect(result.current.isPending).toBe(false);
         });
       });
     });
-    xit("should send error", async () => {
+    it("should send error", async () => {
       const testValue = "testValue";
       const request = () => Promise.reject(testValue) as Promise<string>;
       const { result } = renderHook(() => useApiRequest({ request }), {
       });
       await act(async () => {
-        await result.current.sendRequest();
-        expect(result.current.errorMessage).toBe(testValue);
+        return result.current.sendRequest();
       });
+      expect(result.current.errorMessage).toBe(testValue);
     });
     it("should be set args to request", async () => {
       const testArg1 = "testArg1";
@@ -70,7 +70,7 @@ describe("test useRequest hook", () => {
       const { result } = renderHook(() => useApiRequest({ request }), {
       });
       await act(() => {
-        result.current
+        return result.current
           .sendRequest({ arg1: testArg1, arg2: testArg2 })
           .then(() => {
             expect(result.current.data).toBe(testArg1 + testArg2);
