@@ -25,7 +25,7 @@ export const setCache = (name: string, value: any, token?: string) => {
   return cacheService.set(key, value);
 };
 
-const LocalStorageService: StorageService<string, CacheValue> = {
+export const LocalStorageService: StorageService<string, CacheValue> = {
   set: (key: string, value: CacheValue) => {
     if (!localStorage) return;
     localStorage.setItem(key, JSON.stringify(value));
