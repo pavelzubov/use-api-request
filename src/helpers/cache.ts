@@ -47,7 +47,7 @@ const isValidDate = (cacheValueDate: Date, cacheMaxAge: number = CACHE_MAX_AGE) 
   return +currentDate - +new Date(cacheValueDate) <= cacheMaxAge;
 };
 
-class CacheService {
+export class CacheService {
   private cache: StorageService<string, CacheValue>;
 
   constructor(service: StorageService<string, CacheValue>) {
