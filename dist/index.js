@@ -102,7 +102,12 @@ var LocalStorageService = {
     set: function (key, value) {
         if (!localStorage)
             return;
-        localStorage.setItem(key, JSON.stringify(value));
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+        catch (e) {
+            console.log(e);
+        }
     },
     get: function (key) {
         if (!localStorage)
