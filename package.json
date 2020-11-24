@@ -1,6 +1,6 @@
 {
   "name": "@pavelzubov/use-api-request",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "React hook for use api requests",
   "author": "pavelzubov",
   "license": "Apache-2.0",
