@@ -70,8 +70,6 @@ const useApiRequest = <T extends any>({
   const [status, setStatus] = useState<API_REQUEST_STATUS>('WAIT');
   const [data, setData] = useState<T | TNullValue>(defaultData || nullValue);
   const [errorMessage, setErrorMessageState] = useState<string>("");
-  const setErrorMessage = (error: any) =>
-    setErrorMessageState(getErrorMessageCallback(error));
   const cleanErrorMessage = () => setErrorMessageState("");
 
   const [isPending, setIsPending] = useState<boolean>(false);
@@ -106,7 +104,7 @@ const useApiRequest = <T extends any>({
       .catch((error: any) => {
         const errorMessage = getErrorMessageCallback(error);
         setStatus("FAIL");
-        setErrorMessage(errorMessage);
+        setErrorMessageState(errorMessage);
         if (alertService) alertService.errorAlert({ content: errorMessage });
         catchCallback && catchCallback(error);
       })
