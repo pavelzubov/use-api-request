@@ -161,9 +161,6 @@ var useApiRequest = function (_a) {
     var _d = react.useState('WAIT'), status = _d[0], setStatus = _d[1];
     var _e = react.useState(defaultData || nullValue), data = _e[0], setData = _e[1];
     var _f = react.useState(""), errorMessage = _f[0], setErrorMessageState = _f[1];
-    var setErrorMessage = function (error) {
-        return setErrorMessageState(getErrorMessageCallback(error));
-    };
     var cleanErrorMessage = function () { return setErrorMessageState(""); };
     var _g = react.useState(false), isPending = _g[0], setIsPending = _g[1];
     var sendSuccessMessage = function (res) {
@@ -190,7 +187,7 @@ var useApiRequest = function (_a) {
             .catch(function (error) {
             var errorMessage = getErrorMessageCallback(error);
             setStatus("FAIL");
-            setErrorMessage(errorMessage);
+            setErrorMessageState(errorMessage);
             if (alertService)
                 alertService.errorAlert({ content: errorMessage });
             catchCallback && catchCallback(error);
